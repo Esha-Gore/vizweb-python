@@ -102,24 +102,18 @@ def compute_colorfulness2(image: torch.Tensor) -> float:
     return (sat_mean + sat_std).item()
 
 
+# returns very close answer, around 12 when expected is 14 for image that ends in 402. 
 def compute_colorfulness22(image: torch.Tensor) -> float:
-    # 1) Bring the tensor into H×W×C uint8 [0…255], in RGB order:
     np_uint8 = (image * 255).byte().permute(1, 2, 0).cpu().numpy()
 
-    # 2) Run the exact same OpenCV conversion the Java code used.
-    #    (They called CV_BGR2HSV in the snippet, but presumably meant CV_BGR2Luv;
-    #     try both if you need to match their output exactly.)
     luv8 = cv2.cvtColor(np_uint8, cv2.COLOR_RGB2Luv)
 
-    # 3) Split out the raw 8-bit channels—with no offset or scaling:
     L8, u8, v8 = cv2.split(luv8)
 
     print("L8 range:",  L8.min(),  L8.max())
     print("u8 range:",  u8.min(),  u8.max())
     print("v8 range:",  v8.min(),  v8.max())
 
-
-    # 4) Move into torch and compute saturation exactly like Java:
     L = torch.from_numpy(L8).float()
     u = torch.from_numpy(u8).float()
     v = torch.from_numpy(v8).float()
@@ -129,7 +123,6 @@ def compute_colorfulness22(image: torch.Tensor) -> float:
     chroma = torch.sqrt(u * u + v * v)
     saturation = chroma / (L + 1e-6)
 
-    # 5) Return mean + std
     return (saturation.mean() + saturation.std(unbiased=False)).item()
 
 
