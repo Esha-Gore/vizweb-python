@@ -80,10 +80,10 @@ def compute_colorfulness(image: torch.Tensor) -> float:
 
     return colorfulness.item()  # convert from tensor to float
 
-'''
+
 def compute_colorfulness2(image: torch.Tensor) -> float:
 
-    np_image = (image * 255).byte().permute(1, 2, 0).cpu().numpy()
+    np_image = image.mul(255).byte().permute(1, 2, 0).cpu().numpy()
 
     luv_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2Luv)   # Convert RGB → CIELUV using OpenCV
     L, u, v = cv2.split(luv_image)                          # Each: shape [H, W], values in OpenCV Luv range
@@ -101,32 +101,38 @@ def compute_colorfulness2(image: torch.Tensor) -> float:
 
     return (sat_mean + sat_std).item()
 
-'''
 
-def compute_colorfulness2(image: torch.Tensor) -> float:
-    # Convert to float32 RGB in [0, 1]
-    np_image = image.permute(1, 2, 0).cpu().numpy().astype(np.float32)
-    if np_image.max() > 1.0:
-        np_image = np_image / 255.0
+def compute_colorfulness22(image: torch.Tensor) -> float:
+    # 1) Bring the tensor into H×W×C uint8 [0…255], in RGB order:
+    np_uint8 = (image * 255).byte().permute(1, 2, 0).cpu().numpy()
 
-    # Convert to LUV (float)
-    luv_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2Luv)
-    L, u, v = cv2.split(luv_image)
+    # 2) Run the exact same OpenCV conversion the Java code used.
+    #    (They called CV_BGR2HSV in the snippet, but presumably meant CV_BGR2Luv;
+    #     try both if you need to match their output exactly.)
+    luv8 = cv2.cvtColor(np_uint8, cv2.COLOR_RGB2Luv)
 
-    # Convert to torch tensors
-    L = torch.from_numpy(L).float()
-    u = torch.from_numpy(u).float()
-    v = torch.from_numpy(v).float()
+    # 3) Split out the raw 8-bit channels—with no offset or scaling:
+    L8, u8, v8 = cv2.split(luv8)
 
-    # Compute chroma and saturation
-    chroma = torch.sqrt(u ** 2 + v ** 2)
+    print("L8 range:",  L8.min(),  L8.max())
+    print("u8 range:",  u8.min(),  u8.max())
+    print("v8 range:",  v8.min(),  v8.max())
+
+
+    # 4) Move into torch and compute saturation exactly like Java:
+    L = torch.from_numpy(L8).float()
+    u = torch.from_numpy(u8).float()
+    v = torch.from_numpy(v8).float()
+
+    L = torch.clamp(L, min=1.0)
+
+    chroma = torch.sqrt(u * u + v * v)
     saturation = chroma / (L + 1e-6)
 
-    sat_mean = saturation.mean().item()
-    sat_std = saturation.std(unbiased=False).item()
+    # 5) Return mean + std
+    return (saturation.mean() + saturation.std(unbiased=False)).item()
 
-    # Scale result to match Java’s typical range
-    return (sat_mean + sat_std) * 14  # ← empirically matched multiplier
+
 
 # get the top 5 colors from the image to get the color palette
 # want the RBG channels and perhaps the percentage of each color in the image
