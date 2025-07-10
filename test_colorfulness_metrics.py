@@ -1,6 +1,7 @@
 from colorfulness_metrics import (
     compute_colorfulness,
     compute_colorfulness2,
+    compute_colorfulness22,
     compute_average_hsv,
     compute_color_distribution,
 )
@@ -47,12 +48,14 @@ for filename in os.listdir(image_folder):
 
     cf1 = compute_colorfulness(image_tensor)
     cf2 = compute_colorfulness2(image_tensor)
+    cf22 = compute_colorfulness22(image_tensor)
     avg_hsv = compute_average_hsv(image_tensor)
     color_dist = compute_color_distribution(image_tensor)
 
-    print("Colorfulness (Hasler and Suesstrunk metric):", cf1)
-    print("Colorfulness (LUV metric):", cf2)
-    print("Average HSV:", avg_hsv.tolist())
-    print("Color Distribution:")
-    for color, proportion in color_dist.items():
-        print(f"  {color}: {proportion:.2f}")
+    #print("Colorfulness (Hasler and Suesstrunk metric):", cf1)
+    print("Colorfulness (LUV metric) clamping:", cf2)
+    #print("Colorfulness (LUV metric) not clamping:", cf22)
+    #print("Average HSV:", avg_hsv.tolist())
+    #print("Color Distribution:")
+    #for color, proportion in color_dist.items():
+    #    print(f"  {color}: {proportion:.2f}")

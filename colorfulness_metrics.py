@@ -81,7 +81,7 @@ def compute_colorfulness(image: torch.Tensor) -> float:
     return colorfulness.item()  # convert from tensor to float
 
 
-def compute_colorfulness2(image: torch.Tensor) -> float:
+def compute_colorfulness22(image: torch.Tensor) -> float:
 
     np_image = image.mul(255).byte().permute(1, 2, 0).cpu().numpy()
 
@@ -93,6 +93,10 @@ def compute_colorfulness2(image: torch.Tensor) -> float:
     u = torch.from_numpy(u).float() - 96.0
     v = torch.from_numpy(v).float() - 136.0
 
+    print("L8 range:",  L.min(),  L.max())
+    print("u8 range:",  u.min(),  u.max())
+    print("v8 range:",  v.min(),  v.max())
+
     chroma = torch.sqrt(u ** 2 + v ** 2)     # Compute chroma: sqrt(u^2 + v^2)
     saturation = chroma / (L + 1e-6)         # Avoid divide-by-zero: add epsilon to L, CAN REMOVE
 
@@ -102,68 +106,57 @@ def compute_colorfulness2(image: torch.Tensor) -> float:
     return (sat_mean + sat_std).item()
 
 
+# scale everything with LUV ranges (Way 1) 
+# get max min values and check java convention to see if they did somthing different. 
 # returns very close answer, around 12 when expected is 14 for image that ends in 402. 
-def compute_colorfulness22(image: torch.Tensor) -> float:
+def compute_colorfulness2(image: torch.Tensor) -> float:
     np_uint8 = (image * 255).byte().permute(1, 2, 0).cpu().numpy()
 
     luv8 = cv2.cvtColor(np_uint8, cv2.COLOR_RGB2Luv)
 
     L8, u8, v8 = cv2.split(luv8)
-
+    print("before scaling")
     print("L8 range:",  L8.min(),  L8.max())
     print("u8 range:",  u8.min(),  u8.max())
     print("v8 range:",  v8.min(),  v8.max())
 
-    L = torch.from_numpy(L8).float()
-    u = torch.from_numpy(u8).float()
-    v = torch.from_numpy(v8).float()
+
+    L = torch.from_numpy(L8).float() * (100.0 / 255)
+    u = (torch.from_numpy(u8).float() - 134) * (354/255)
+    v = (torch.from_numpy(v8).float() - 140) * (262/255)
+
+    print("after scaling")
+    print("L8 range:",  L.min(),  L.max())
+    print("u8 range:",  u.min(),  u.max())
+    print("v8 range:",  v.min(),  v.max())
 
     L = torch.clamp(L, min=1.0)
-
-    chroma = torch.sqrt(u * u + v * v)
-    saturation = chroma / (L + 1e-6)
-
-    return (saturation.mean() + saturation.std(unbiased=False)).item()
-
-
-
-# get the top 5 colors from the image to get the color palette
-# want the RBG channels and perhaps the percentage of each color in the image
-# like a webpage display. 
-# test by creating a visualization
-
-# class CustomImageDataset(Dataset):
-#     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
-#         self.img_labels = pd.read_csv(annotations_file)
-#         self.img_dir = img_dir
-#         self.transform = transform
-#         self.target_transform = target_transform
-
-#     def __len__(self):
-#         return len(self.img_labels)
-
-#     def __getitem__(self, idx):
-#         img_filename = self.img_labels.iloc[idx, 0]
-#         img_path = os.path.join(self.img_dir, img_filename)
-
-#         image = Image.open(img_path).convert("RGB")
-#         image_tensor = self.transform(image)
-
-#         cf1 = compute_colorfulness(image_tensor)
-#         cf2 = compute_colorfulness2(image_tensor)
-#         avg_hsv = compute_average_hsv(image_tensor)
-#         color_dist = compute_color_distribution(image_tensor)
-
-#         feature_vector = [
-#             cf1,
-#             cf2,
-#             *avg_hsv.tolist(),
-#             *[color_dist[c] for c in [nc.name for nc in STANDARD_COLORS]]
-#         ]
-
-#         label = self.img_labels.iloc[idx, 1]
-#         if self.target_transform:
-#             label = self.target_transform(label)
-
-#         return torch.tensor(feature_vector, dtype=torch.float32), label
+    #lowest L can be is 1, greatest is 100
     
+    chroma = torch.sqrt(u * u + v * v)
+    # smallest is when l is 100 and chroma is smallest it can be. 
+    saturation = chroma / (L) # + 1e-6
+
+    return (saturation.mean() + saturation.std()).item()
+
+def get_top_5_colors(image_tensor):
+
+    pixels = image_tensor.reshape(-1, 3)    # Flatten pixels
+    total_pixels = pixels.shape[0]          # Get number of total pixels
+
+    # Get unique colors and their counts
+    colors, counts = torch.unique(pixels, dim=0, return_counts=True)
+
+    # Get top 5
+    top_indices = torch.topk(counts, k=5).indices
+    top_colors = colors[top_indices]
+    top_counts = counts[top_indices]
+
+    # Convert to dict with percentages
+    result = {}
+    for color, count in zip(top_colors, top_counts):
+        rgb_tuple = tuple(color.tolist())
+        percentage = count.item() / total_pixels
+        result[rgb_tuple] = percentage
+
+    return result
