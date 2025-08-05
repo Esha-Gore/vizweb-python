@@ -27,6 +27,7 @@ STANDARD_COLORS = [
     NamedColor("orange", (255, 165, 0))
 ]
 
+# TTC:
 COLOR_SIMILARITY_THRESHOLD = 0.24 # from vizweb file, bc 200 / 3 * 255 as there are three channels???
 
 def compute_color_distribution(image: torch.Tensor) -> dict[str, float]:

@@ -2,9 +2,12 @@ from typing import List, Tuple, Optional
 from xycut.block_type import BlockType
 
 class Block:
-    MINIMUM_AREA = 10
-    MINIMUM_WIDTH = 2
-    MINIMUM_HEIGHT = 2
+    # MINIMUM_AREA = 10
+    # MINIMUM_WIDTH = 2
+    # MINIMUM_HEIGHT = 2
+    MINIMUM_AREA = 500
+    MINIMUM_WIDTH = 500
+    MINIMUM_HEIGHT = 500
 
     def __init__(self):
         self.bounds: Tuple[int, int, int, int] = (0, 0, 0, 0)
@@ -25,6 +28,9 @@ class Block:
 
     def get_first_child(self) -> Optional["Block"]:
         return self.children[0] if self.children else None
+    
+    def get_bounds(self):
+        return self.bounds
 
     def get_second_child(self) -> Optional["Block"]:
         return self.children[1] if len(self.children) >= 2 else None
@@ -88,4 +94,17 @@ class Block:
         else:
             for c in self.children:
                 c.remove_children_of_text_blocks()
+
+    def get_x(self) -> int:
+        return self.bounds[0]
+
+    def get_y(self) -> int:
+        return self.bounds[1]
+
+    def get_width(self) -> int:
+        return self.bounds[2]
+
+    def get_height(self) -> int:
+        return self.bounds[3]
+
 

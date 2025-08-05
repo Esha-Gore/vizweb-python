@@ -8,11 +8,12 @@ def find_content_bounds(image, bounds):
 
     # Convert to grayscale if the image is in RGB
     if len(sub_image.shape) == 3:
+        #todo: convert to grayscale
         sub_image = np.mean(sub_image, axis=2)
 
     # Define threshold: pixels below this are considered content
     threshold = 250
-    content_mask = sub_image < threshold
+    content_mask = sub_image < threshold # todo: double check scalar vs array comparison
 
     # Check for any non-background pixels in each row and column
     rows_with_content = np.any(content_mask, axis=1)

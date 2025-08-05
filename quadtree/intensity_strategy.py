@@ -4,7 +4,7 @@ import cv2
 class IntensityEntropyStrategy:
     def __init__(self, entropy_threshold: float = 280.0):
         # Threshold used to decide if a region has enough intensity variation to be split
-        # NOTE: This value may need some fine tuning in Python
+        # sidenote: This value may need some fine tuning in Python
         self.entropy_threshold = entropy_threshold
 
     def should_split(self, region: np.ndarray) -> bool:

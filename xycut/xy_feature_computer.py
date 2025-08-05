@@ -30,6 +30,12 @@ class XYFeatureComputer:
         if node.is_leaf():
             return node.get_area() if not node.is_text() else 0
         return sum(XYFeatureComputer.compute_non_text_block_area(c) for c in node.get_children())
+    
+    # returns the number of leaves in the tree. 
+    @staticmethod
+    def compute_num_leaves(root: Block) -> int:
+        return len(XYFeatureComputer.get_all_leaves(root))
+
 
     # returns the percentage of the root block's area that is covered by its leaf blocks.
     # sidenote: in a properly decomposed tree this should return 100%.

@@ -12,15 +12,27 @@ class QuadtreeNode:
 
     def subdivide(self):
         x, y, w, h = self.bounds
-        half_w = w // 2
-        half_h = h // 2
 
-        self.children = [
-            QuadtreeNode(x, y, half_w, half_h),
-            QuadtreeNode(x + half_w, y, w - half_w, half_h),
-            QuadtreeNode(x, y + half_h, half_w, h - half_h),
-            QuadtreeNode(x + half_w, y + half_h, w - half_w, h - half_h)
-        ]
+        mid_w = w // 2
+        mid_h = h // 2
+
+        # Ensure perfect coverage, even with odd sizes
+        children = []
+
+        # Top-left
+        children.append(QuadtreeNode(x, y, mid_w, mid_h))
+
+        # Top-right
+        children.append(QuadtreeNode(x + mid_w, y, w - mid_w, mid_h))
+
+        # Bottom-left
+        children.append(QuadtreeNode(x, y + mid_h, mid_w, h - mid_h))
+
+        # Bottom-right
+        children.append(QuadtreeNode(x + mid_w, y + mid_h, w - mid_w, h - mid_h))
+
+        self.children = children
+
 
     def get_all_leaves(self) -> List['QuadtreeNode']:
         if self.is_leaf():

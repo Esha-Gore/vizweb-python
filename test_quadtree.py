@@ -1,23 +1,86 @@
 import cv2
-from xycut.xy_decomposer import XYDecomposer
-from xycut.default_xy_strategy import DefaultXYDecompositionStrategy
-from xycut.xy_feature_computer import XYFeatureComputer
-from xycut.xy_tree_visualizer import XYTreeVisualizer
+import os
+import numpy as np
+from quadtree.completed_quadtree_feature_computer import FullQuadtreeFeatureComputer
+from quadtree.quadtree_visualizer import draw_quadtree_blocks, draw_all_blocks
+from quadtree.quadtree_node import QuadtreeNode
+from quadtree.quadtree import Quadtree
 
-image = cv2.imread("images/sample.png")
-strategy = DefaultXYDecompositionStrategy()
+# BAD FIX MEMEMEMEMMEMEMMEME
+# Load image
+image_path = "images/593525f07e402.jpg"
+image1 = cv2.imread(image_path)
 
-decomposer = XYDecomposer()
-root = decomposer.decompose(image, strategy)
+# Example dimensions: width=1440, height=900
+width, height = 1440, 900
 
-# Feature extraction
-avg_depth = XYFeatureComputer.compute_average_decomposition_level(root)
-num_leaves = XYFeatureComputer.compute_num_leaves(root)
+# Create a white image (255 for each RGB channel)
+white_image = np.ones((height, width, 3), dtype=np.uint8) * 255
+black_image = np.zeros((height, width, 3), dtype=np.uint8)
+red_green = np.zeros((height, width, 3), dtype=np.uint8)
 
-# Visualization
-visualizer = XYTreeVisualizer()
-outlined = visualizer.draw_block_outlines(image, root)
-cv2.imwrite("output_visuals/vis_sample.png", outlined)
+red_green[:, :width // 2] = [0, 0, 255]
+red_green[:, width // 2:] = [0, 255, 0]
+images = []
 
-print(f"Average decomposition depth: {avg_depth}")
-print(f"Number of leaf blocks: {num_leaves}")
+images.append(white_image)
+images.append(black_image)
+images.append(red_green)
+
+image_folder = "images"
+
+# for image in images:
+
+#     # Run feature extraction
+#     qt_computer = FullQuadtreeFeatureComputer()
+#     qt_computer.compute_features(image)
+#     features = qt_computer.get_features()
+
+#     # Print feature values
+#     print(f"Features for: basic")
+#     for key, value in features.items():
+#         print(f"  {key}: {value:.4f}")
+
+#     # Visualize  the quadtree block outlines
+#     qt = Quadtree(image, max_depth=5, min_size=20,
+#                 entropy_func=qt_computer.decomposer.strategy.compute_entropy,
+#                 entropy_threshold=qt_computer.decomposer.strategy.entropy_threshold)
+#     root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
+#     qt.build(root)
+
+#     visualized = draw_quadtree_blocks(image, root)
+
+#     cv2.imshow("Quadtree Visualization", visualized)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
+for filename in os.listdir(image_folder):
+    filename = "5935268355cac.jpg"
+    image_path = os.path.join(image_folder, filename)
+
+    image = cv2.imread(image_path)
+    # Run feature extraction
+    qt_computer = FullQuadtreeFeatureComputer()
+    qt_computer.compute_features(image)
+    features = qt_computer.get_features()
+
+    # Print feature values
+    print(f"Features for: {image_path}")
+    for key, value in features.items():
+        print(f"  {key}: {value:.4f}")
+
+    # Visualize  the quadtree block outlines
+    # TTC: what's the minimum size and max depth? 
+    qt = Quadtree(image, max_depth=20, min_size=10,
+                entropy_func=qt_computer.decomposer.strategy.compute_entropy,
+                entropy_threshold=qt_computer.decomposer.strategy.entropy_threshold)
+    root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
+    qt.build(root)
+
+    visualized = draw_all_blocks(image, root)
+
+    cv2.imshow("Quadtree Visualization", visualized)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
