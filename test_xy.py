@@ -7,8 +7,12 @@ from xycut.xycut_visualizer import XYTreeVisualizer
 
 #from pdb import set_trace as st
 image_folder = "images"
+os.makedirs("debug", exist_ok=True)
+os.makedirs("debug_output", exist_ok=True)
+
 
 for filename in os.listdir(image_folder):
+    #filename = "pelican.jpg"
     filename = "593525f07e402.jpg"
     image_path = os.path.join(image_folder, filename)
 

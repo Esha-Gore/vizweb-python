@@ -5,6 +5,8 @@ from xycut.separator_model import SeparatorModel
 from xycut.block import Block
 import uuid
 import cv2
+import os
+import numpy as np
 
 from typing import List
 
@@ -26,7 +28,7 @@ class XYDecomposer:
     
 
         # stop if block is too small or max depth is exceeded
-        if self._should_stop(block, strategy, level):
+        if self._should_stop(block, strategy, level, image):
             return
 
         # reemove borders/margins if strategy allows
@@ -41,7 +43,7 @@ class XYDecomposer:
         separators = []
 
         if strategy.use_line_separators:
-            #print(f"[Level {level}] Extracting line separators for block {block.bounds}")
+            #print(f"[Level {level}] Extracting line separators for block {block.bounds}")    
             separators += strategy.line_separator_extractor.extract(block, image)
 
         if strategy.use_space_separators:
@@ -76,22 +78,32 @@ class XYDecomposer:
             bx, by, bw, bh = block.get_bounds()
             sx, sy, sw, sh = sep.get_bounds()
 
-            # Only allow horizontal separators that actually cut across the block interior
+            # Allow edge separators as long as at least one valid sub-block is produced
             if sep.is_horizontal():
-                if sy <= by or sy + sh >= by + bh:
-                    print(f"Skipping horizontal separator at y={sy} — overlaps block edge")
+                top_h = sy - by
+                bottom_h = (by + bh) - (sy + sh)
+                if top_h <= 0 and bottom_h <= 0:
+                    print(f"Skipping horizontal separator at y={sy} — no valid split (top_h={top_h}, bottom_h={bottom_h})")
                     continue
             else:
-                if sx <= bx or sx + sw >= bx + bw:
-                    print(f"Skipping vertical separator at x={sx} — overlaps block edge")
+                left_w = sx - bx
+                right_w = (bx + bw) - (sx + sw)
+                if left_w <= 0 and right_w <= 0:
+                    print(f"Skipping vertical separator at x={sx} — no valid split (left_w={left_w}, right_w={right_w})")
                     continue
 
 
-            #print("Before split")
+
+            print(f"Attempting to split block: {block.get_bounds()} with separator: {sep.bounds}")
+
             sub_blocks = self._split_block(block, sep)
+
+            print(f"Number of child blocks returned: {len(sub_blocks)}")
+
             for sb in sub_blocks:
+
                 #print(f"[Level {level+1}] Sub-block bounds: {sb.bounds}")
-                #print(f"[Level {level}] → Child block bounds: {sb.bounds}")
+                print(f"[Level {level}] → Child block bounds: {sb.bounds}")
                 x, y, w, h = sb.bounds
                 sub_image = image[y:y+h, x:x+w]
                 #print(f"[Level {level}] → sub_image shape: {sub_image.shape}")
@@ -100,7 +112,7 @@ class XYDecomposer:
                     #print(f"[Level {level}] → Skipping empty sub-image")
                     continue
 
-                if self._should_stop(sb, strategy, level + 1):
+                if self._should_stop(sb, strategy, level + 1, image):
                     #print(f"[Level {level+1}] → Stopping: block too small or too deep")
                     continue
 
@@ -119,13 +131,11 @@ class XYDecomposer:
         sep_x, sep_y, sep_w, sep_h = separator.get_bounds()
         blocks = []
 
-        # Clip the separator so it doesn't go outside the block
+        # Clip separator to block bounds
         sep_x = max(sep_x, x)
         sep_y = max(sep_y, y)
         sep_w = min(sep_w, x + w - sep_x)
         sep_h = min(sep_h, y + h - sep_y)
-
-        #print("int the split method")
 
         if separator.is_horizontal():
             top_h = sep_y - y
@@ -134,12 +144,18 @@ class XYDecomposer:
             if top_h > 0:
                 top = Block()
                 top.set_bounds((x, y, w, top_h))
+                print(f"Created top block: {top.get_bounds()}")
                 blocks.append(top)
+            else:
+                print(f"Top block too small (height={top_h}), skipping")
 
             if bottom_h > 0:
                 bottom = Block()
                 bottom.set_bounds((x, sep_y + sep_h, w, bottom_h))
+                print(f"Created bottom block: {bottom.get_bounds()}")
                 blocks.append(bottom)
+            else:
+                print(f"Bottom block too small (height={bottom_h}), skipping")
 
         else:  # vertical
             left_w = sep_x - x
@@ -148,30 +164,51 @@ class XYDecomposer:
             if left_w > 0:
                 left = Block()
                 left.set_bounds((x, y, left_w, h))
+                print(f"Created left block: {left.get_bounds()}")
                 blocks.append(left)
+            else:
+                print(f"Left block too small (width={left_w}), skipping")
 
             if right_w > 0:
                 right = Block()
                 right.set_bounds((sep_x + sep_w, y, right_w, h))
+                print(f"Created right block: {right.get_bounds()}")
                 blocks.append(right)
+            else:
+                print(f"Right block too small (width={right_w}), skipping")
 
         return blocks
 
 
-
-
+    def visualize_separators(self, image, bounds, separators, level):
+        os.makedirs("xydebug", exist_ok=True)
+        img_copy = image.copy()
+        for sep in separators:
+            x, y, w, h = sep.get_bounds()
+            color = (0, 255, 0) if sep.is_horizontal() else (255, 0, 0)
+            cv2.rectangle(img_copy, (x, y), (x + w, y + h), color, 2)
+        cv2.imwrite(f"xydebug/separators_level{level}.png", img_copy)
 
 
     #Checks whether to stop recursion based on block size and level.
-    def _should_stop(self, block: Block, strategy: DefaultXYDecompositionStrategy, level: int) -> bool:
+    def _should_stop(self, block: Block, strategy: DefaultXYDecompositionStrategy, level: int, image) -> bool:
         x, y, w, h = block.bounds
         area = w * h
+        region = image[y:y+h, x:x+w]
+        # gray = cv2.cvtColor(region, cv2.COLOR_RGB2GRAY)
+        # mean_intensity = np.mean(gray)
+
+        # if mean_intensity > 240:
+        #     print(f"[Level {level}] Region too white (mean={mean_intensity:.2f}), stopping recursion.")
+        #     return True
         stop = (
             area < strategy.min_area or
             w < strategy.min_width or
             h < strategy.min_height or
-            level > 5#strategy.max_level
+            level > strategy.max_level
         )
+
+
 
         if stop:
             print(f"[Level {level}] STOP: Block {(x, y, w, h)} — area={area}, w={w}, h={h}")
