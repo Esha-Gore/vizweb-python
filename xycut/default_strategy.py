@@ -13,10 +13,10 @@ class DefaultXYDecompositionStrategy(DecompositionStrategy):
     def __init__(
         self,
         # chagne from select the largest & most similar to just teh largest
-        separator_selection_strategy: Callable[[List[SeparatorModel]], List[SeparatorModel]] = select_the_largest,
+        separator_selection_strategy: Callable[[List[SeparatorModel]], List[SeparatorModel]] = select_the_largest_and_similar,
         min_separator_size: int = 10,
         min_std_dev: int = 10,
-        # changing 
+        # fine tune 
         min_area: int = 100,
         min_width: int = 10,
         min_height: int = 10,

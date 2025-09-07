@@ -22,7 +22,7 @@ class LineSeparatorExtractor:
         # cvCanny(gray, mask, 0.66*50, 1.33*50, 3) → (33, 67, aperture=3).
         edges = cv2.Canny(gray, 33, 67, apertureSize=3)
 
-        # Morphological clean-up (closing) to bridge tiny gaps between line pixels.
+        # Morphological closing to bridge tiny gaps between line pixels.
         # iterations=1 matches Java's single dilate + single erode.
         kernel = np.ones((3, 3), np.uint8)
         edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=1)

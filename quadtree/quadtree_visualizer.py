@@ -2,12 +2,9 @@ import numpy as np
 import cv2
 from quadtree.quadtree_node import QuadtreeNode
 
-
+# Draws the leaf blocks of a quadtree on top of the image.
+# Useful for visualizing how the image was partitioned by the quadtree.
 def draw_quadtree_blocks(image: np.ndarray, root: QuadtreeNode, color=(0, 255, 0), thickness=1) -> np.ndarray:
-    """
-    Draws the leaf blocks of a quadtree on top of the image.
-    Useful for visualizing how the image was partitioned by the quadtree.
-    """
     output = image.copy()
     for leaf in root.get_all_leaves():
         x, y, w, h = leaf.get_bounds()
@@ -15,35 +12,28 @@ def draw_quadtree_blocks(image: np.ndarray, root: QuadtreeNode, color=(0, 255, 0
     return output
 
 
+# Overlays a binary mask on top of the image.
+# Pixels where the mask is 1 will be tinted with the given color.
+# Useful for debugging which regions were marked as content.
 def overlay_mask(image: np.ndarray, mask: np.ndarray, color=(0, 0, 255), alpha=0.3) -> np.ndarray:
-    """
-    Overlays a binary mask on top of the image.
-    Pixels where the mask is 1 will be tinted with the given color.
-    Useful for debugging which regions were marked as content.
-    """
     overlay = image.copy()
     mask_colored = np.zeros_like(image)
     mask_colored[mask == 1] = color
     return cv2.addWeighted(overlay, 1, mask_colored, alpha, 0)
 
 
+# Draws vertical and horizontal symmetry axes (image center lines).
+# Useful to visually check symmetry of decomposed regions.
 def draw_symmetry_lines(image: np.ndarray, color=(255, 0, 0), thickness=1) -> np.ndarray:
-    """
-    Draws vertical and horizontal symmetry axes (image center lines).
-    Useful to visually check symmetry of decomposed regions.
-    """
     h, w = image.shape[:2]
     output = image.copy()
     cv2.line(output, (w // 2, 0), (w // 2, h), color, thickness)  # vertical center
     cv2.line(output, (0, h // 2), (w, h // 2), color, thickness)  # horizontal center
     return output
 
-
+# Draws a dot at the center of mass of the active pixels in the mask.
+# Useful for equilibrium visualization — how centered the content is.
 def draw_center_of_mass(image: np.ndarray, mask: np.ndarray, color=(0, 255, 255), radius=4) -> np.ndarray:
-    """
-    Draws a dot at the center of mass of the active pixels in the mask.
-    Useful for equilibrium visualization — how centered the content is.
-    """
     output = image.copy()
     if mask.sum() == 0:
         return output

@@ -29,15 +29,18 @@ avg_hsv = compute_average_hsv(image_tensor)
 
 color_dist = compute_color_distribution(image_tensor)
 #print("Color Distribution:")
-for color, proportion in color_dist.items():
+#for color, proportion in color_dist.items():
     #print(f"  {color}: {proportion:.2f}")
 
 
 # Real Image Tests
 def load_image_tensor(path):
+
     image = Image.open(path).convert("RGB")
     transform = T.ToTensor()
     return transform(image)
+
+
 
 # Folder with real-world images
 image_folder = "test_images"

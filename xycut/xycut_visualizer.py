@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from typing import List, Tuple
-from xycut.block import Block  # assumes you have Block class defined here
+from xycut.block import Block  
 
 
 class XYTreeVisualizer:
@@ -30,15 +30,12 @@ class XYTreeVisualizer:
         return img_copy
 
     def draw_separators(self, image: np.ndarray, separators: List[Tuple[int, int, int, int]]) -> np.ndarray:
-        # Draw given separator lines on the image
-        # separators: List of (x, y, w, h)
         img_copy = image.copy()
         for x, y, w, h in separators:
             cv2.rectangle(img_copy, (x, y), (x + w, y + h), self.separator_color, self.thickness)
         return img_copy
 
     def draw_blocks_and_separators(self, image: np.ndarray, root: Block, separators: List[Tuple[int, int, int, int]]) -> np.ndarray:
-        # Draw both blocks and separators
         img_copy = image.copy()
         self._draw_recursive(img_copy, root)
         for x, y, w, h in separators:

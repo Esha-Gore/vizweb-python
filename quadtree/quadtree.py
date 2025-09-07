@@ -22,8 +22,6 @@ class Quadtree:
 
         entropy = self.entropy_func(region)
         root.set_entropy(entropy)
-        #st()
-        # alice: check is called on root, not on correct "node"
         if (depth >= self.max_depth or
             w <= self.min_size or h <= self.min_size or
             entropy < self.entropy_threshold):
