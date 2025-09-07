@@ -12,12 +12,14 @@ import numpy as np
 class DefaultXYDecompositionStrategy(DecompositionStrategy):
     def __init__(
         self,
-        separator_selection_strategy: Callable[[List[SeparatorModel]], List[SeparatorModel]] = select_the_largest_and_similar,
+        # chagne from select the largest & most similar to just teh largest
+        separator_selection_strategy: Callable[[List[SeparatorModel]], List[SeparatorModel]] = select_the_largest,
         min_separator_size: int = 10,
         min_std_dev: int = 10,
-        min_area: int = 50,
-        min_width: int = 5,
-        min_height: int = 5,
+        # changing 
+        min_area: int = 100,
+        min_width: int = 10,
+        min_height: int = 10,
         max_level: int = 10,
         remove_border: bool = True,
         split_horizontal: bool = True,

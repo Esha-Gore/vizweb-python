@@ -30,6 +30,7 @@ class LineSeparatorExtractor:
         height, width = edges.shape
 
         for retry in range(self.max_retries):
+            # todo: check these thesholds against java
             threshold_h = width * (self.line_pixel_ratio_threshold - retry * self.ratio_decrement)
             threshold_v = height * (self.line_pixel_ratio_threshold - retry * self.ratio_decrement)
 

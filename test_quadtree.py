@@ -36,10 +36,10 @@ image_folder = "images"
 #     qt_computer.compute_features(image)
 #     features = qt_computer.get_features()
 
-#     # Print feature values
-#     print(f"Features for: basic")
+#     # #print feature values
+#     #print(f"Features for: basic")
 #     for key, value in features.items():
-#         print(f"  {key}: {value:.4f}")
+#         #print(f"  {key}: {value:.4f}")
 
 #     # Visualize  the quadtree block outlines
 #     qt = Quadtree(image, max_depth=5, min_size=20,
@@ -64,10 +64,10 @@ for filename in os.listdir(image_folder):
     qt_computer.compute_features(image)
     features = qt_computer.get_features()
 
-    # Print feature values
-    print(f"Features for: {image_path}")
+    # #print feature values
+    #print(f"Features for: {image_path}")
     for key, value in features.items():
-        print(f"  {key}: {value:.4f}")
+        #print(f"  {key}: {value:.4f}")
 
     # Visualize  the quadtree block outlines
     # TTC: what's the minimum size and max depth? 

@@ -16,21 +16,21 @@ def make_solid_color_tensor(rgb, size=(4, 4)):
 
 image_tensor = make_solid_color_tensor((255, 0, 0))
 
-print("Solid Image Tests:\n")
+#print("Solid Image Tests:\n")
 
 cf1 = compute_colorfulness(image_tensor)
-print("Colorfulness (Hassler and Susstunk metric):", cf1)
+#print("Colorfulness (Hassler and Susstunk metric):", cf1)
 
 cf2 = compute_colorfulness2(image_tensor)
-print("Colorfulness (LUV metric):", cf2)
+#print("Colorfulness (LUV metric):", cf2)
 
 avg_hsv = compute_average_hsv(image_tensor)
-print("Average HSV:", avg_hsv.tolist())
+#print("Average HSV:", avg_hsv.tolist())
 
 color_dist = compute_color_distribution(image_tensor)
-print("Color Distribution:")
+#print("Color Distribution:")
 for color, proportion in color_dist.items():
-    print(f"  {color}: {proportion:.2f}")
+    #print(f"  {color}: {proportion:.2f}")
 
 
 # Real Image Tests
@@ -43,7 +43,7 @@ def load_image_tensor(path):
 image_folder = "test_images"
 
 for filename in os.listdir(image_folder):
-    print(f"\nTesting {filename}")
+    #print(f"\nTesting {filename}")
     image_tensor = load_image_tensor(os.path.join(image_folder, filename))
 
     cf1 = compute_colorfulness(image_tensor)
@@ -52,10 +52,10 @@ for filename in os.listdir(image_folder):
     avg_hsv = compute_average_hsv(image_tensor)
     color_dist = compute_color_distribution(image_tensor)
 
-    #print("Colorfulness (Hasler and Suesstrunk metric):", cf1)
-    print("Colorfulness (LUV metric) clamping:", cf2)
-    #print("Colorfulness (LUV metric) not clamping:", cf22)
-    #print("Average HSV:", avg_hsv.tolist())
-    #print("Color Distribution:")
+    ##print("Colorfulness (Hasler and Suesstrunk metric):", cf1)
+    #print("Colorfulness (LUV metric) clamping:", cf2)
+    ##print("Colorfulness (LUV metric) not clamping:", cf22)
+    ##print("Average HSV:", avg_hsv.tolist())
+    ##print("Color Distribution:")
     #for color, proportion in color_dist.items():
-    #    print(f"  {color}: {proportion:.2f}")
+    #    #print(f"  {color}: {proportion:.2f}")

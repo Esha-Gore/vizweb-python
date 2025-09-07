@@ -11,9 +11,16 @@ os.makedirs("debug", exist_ok=True)
 os.makedirs("debug_output", exist_ok=True)
 
 
+# todo: hyperparameter search first 
+# then conside the defautl strategy pixels (like by 100 or so)
+# choose something which makes sense (things are wider then they are long, etc)
+# evalute them. 
+
+# commit code, and create READ me (env instructions and testing instructions)
+
 for filename in os.listdir(image_folder):
     #filename = "pelican.jpg"
-    filename = "593525f07e402.jpg"
+    #filename = "youtube.png"
     image_path = os.path.join(image_folder, filename)
 
     image = cv2.imread(image_path)

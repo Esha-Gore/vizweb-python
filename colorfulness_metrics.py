@@ -94,9 +94,9 @@ def compute_colorfulness22(image: torch.Tensor) -> float:
     u = torch.from_numpy(u).float() - 96.0
     v = torch.from_numpy(v).float() - 136.0
 
-    print("L8 range:",  L.min(),  L.max())
-    print("u8 range:",  u.min(),  u.max())
-    print("v8 range:",  v.min(),  v.max())
+    #print("L8 range:",  L.min(),  L.max())
+    #print("u8 range:",  u.min(),  u.max())
+    #print("v8 range:",  v.min(),  v.max())
 
     chroma = torch.sqrt(u ** 2 + v ** 2)     # Compute chroma: sqrt(u^2 + v^2)
     saturation = chroma / (L + 1e-6)         # Avoid divide-by-zero: add epsilon to L, CAN REMOVE
@@ -116,20 +116,20 @@ def compute_colorfulness2(image: torch.Tensor) -> float:
     luv8 = cv2.cvtColor(np_uint8, cv2.COLOR_RGB2Luv)
 
     L8, u8, v8 = cv2.split(luv8)
-    print("before scaling")
-    print("L8 range:",  L8.min(),  L8.max())
-    print("u8 range:",  u8.min(),  u8.max())
-    print("v8 range:",  v8.min(),  v8.max())
+    #print("before scaling")
+    #print("L8 range:",  L8.min(),  L8.max())
+    #print("u8 range:",  u8.min(),  u8.max())
+    #print("v8 range:",  v8.min(),  v8.max())
 
 
     L = torch.from_numpy(L8).float() * (100.0 / 255)
     u = (torch.from_numpy(u8).float() - 134) * (354/255)
     v = (torch.from_numpy(v8).float() - 140) * (262/255)
 
-    print("after scaling")
-    print("L8 range:",  L.min(),  L.max())
-    print("u8 range:",  u.min(),  u.max())
-    print("v8 range:",  v.min(),  v.max())
+    #print("after scaling")
+    #print("L8 range:",  L.min(),  L.max())
+    #print("u8 range:",  u.min(),  u.max())
+    #print("v8 range:",  v.min(),  v.max())
 
     L = torch.clamp(L, min=1.0)
     #lowest L can be is 1, greatest is 100
