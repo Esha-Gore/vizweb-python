@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 class IntensityEntropyStrategy:
-    def __init__(self, entropy_threshold: float = 280.0):
+    def __init__(self, entropy_threshold: float = 3.0):
         # Threshold used to decide if a region has enough intensity variation to be split
         # sidenote: This value may need some fine tuning in Python
         self.entropy_threshold = entropy_threshold
@@ -20,7 +20,7 @@ class IntensityEntropyStrategy:
         # Extract L channel, which represents intensity/lightness
         L_channel = lab[:, :, 0]  # L channel range in OpenCV is 0–255
 
-        # Normalize L to 0–100 range like in Java (optional, depending on use)
+        # Normalize L to 0–100 range like in Java 
         L_channel = L_channel.astype(np.float32) * (100.0 / 255.0)
 
         # Compute histogram with 20 bins over range [0, 100]

@@ -6,7 +6,7 @@ from xycut.block import Block
 
 class SpaceSeparatorExtractor:
     # Initializes the extractor with debug flag and std-dev threshold
-    def __init__(self, debug=False, std_threshold=10):
+    def __init__(self, debug=False, std_threshold=100):
         self.debug = debug
         self.std_threshold = std_threshold
 

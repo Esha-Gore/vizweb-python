@@ -47,26 +47,50 @@ class LineSeparatorExtractor:
         return separators
 
     # Filters and verifies strong line candidates using neighboring pixel density checks
-    def _find_verified_separators(self, values, threshold, is_horizontal, block, width=None, height=None):
-        verified: List[SeparatorModel] = []
-        for i in range(1, len(values) - 1):
-            if values[i] > threshold:
-                before, current, after = values[i - 1], values[i], values[i + 1]
-                if before < 0.2 * current and after < 0.2 * current:
-                    if is_horizontal:
-                        separator = SeparatorModel(
-                            position=i,
-                            direction=SeparatorModel.HORIZONTAL_SEPARATOR,
-                            roi=block.get_bounds()
-                        )
-                        # 2‑pixel thickness; adjust if you want thicker visualized lines
-                        separator.bounds = (block.get_x(), block.get_y() + i, width, 2)
-                    else:
-                        separator = SeparatorModel(
-                            position=i,
-                            direction=SeparatorModel.VERTICAL_SEPARATOR,
-                            roi=block.get_bounds()
-                        )
-                        separator.bounds = (block.get_x() + i, block.get_y(), 2, height)
-                    verified.append(separator)
+    def _find_verified_separators(self, values, threshold, is_horizontal, block, width, height):
+        mask = np.array(values) > threshold
+        segments = self._segment_boolean_mask(mask)
+
+        verified = []
+        for seg in segments:
+            pos = seg['start']
+            size = seg['length']
+
+            # Skip full-height/full-width separators (usually false positives)
+            if is_horizontal and size >= 0.98 * height:
+                continue
+            if not is_horizontal and size >= 0.98 * width:
+                continue
+
+            if is_horizontal:
+                separator = SeparatorModel(
+                    position=pos,
+                    direction=SeparatorModel.HORIZONTAL_SEPARATOR,
+                    roi=block.get_bounds()
+                )
+                separator.bounds = (block.get_x(), block.get_y() + pos, width, size)
+            else:
+                separator = SeparatorModel(
+                    position=pos,
+                    direction=SeparatorModel.VERTICAL_SEPARATOR,
+                    roi=block.get_bounds()
+                )
+                separator.bounds = (block.get_x() + pos, block.get_y(), size, height)
+
+            verified.append(separator)
+
         return verified
+
+    @staticmethod
+    def _segment_boolean_mask(mask: np.ndarray) -> List[dict]:
+        segments = []
+        start = None
+        for i, val in enumerate(mask):
+            if val and start is None:
+                start = i
+            elif not val and start is not None:
+                segments.append({'start': start, 'length': i - start})
+                start = None
+        if start is not None:
+            segments.append({'start': start, 'length': len(mask) - start})
+        return segments

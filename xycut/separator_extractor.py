@@ -31,8 +31,8 @@ class SeparatorExtractor:
         h, w = closed.shape
         sep_list: List[SeparatorModel] = []
 
-        min_band_thickness = 10
-        min_empty_ratio    = 0.95
+        min_band_thickness = 25
+        min_empty_ratio    = 0.99
 
         row_empty = (np.mean(closed < 10, axis=1) >= min_empty_ratio)
         col_empty = (np.mean(closed < 10, axis=0) >= min_empty_ratio)

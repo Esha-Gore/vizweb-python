@@ -69,18 +69,18 @@ for filename in os.listdir(image_folder):
     for key, value in features.items():
         #print(f"  {key}: {value:.4f}")
 
-    # Visualize  the quadtree block outlines
-    # TTC: what's the minimum size and max depth? 
-    qt = Quadtree(image, max_depth=20, min_size=10,
-                entropy_func=qt_computer.decomposer.strategy.compute_entropy,
-                entropy_threshold=qt_computer.decomposer.strategy.entropy_threshold)
-    root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
-    qt.build(root)
+        # Visualize  the quadtree block outlines
+        # TTC: what's the minimum size and max depth? 
+        qt = Quadtree(image, max_depth=20, min_size=10,
+                    entropy_func=qt_computer.decomposer.strategy.compute_entropy,
+                    entropy_threshold=qt_computer.decomposer.strategy.entropy_threshold)
+        root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
+        qt.build(root)
 
-    visualized = draw_all_blocks(image, root)
+        visualized = draw_all_blocks(image, root)
 
-    cv2.imshow("Quadtree Visualization", visualized)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        cv2.imshow("Quadtree Visualization", visualized)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 

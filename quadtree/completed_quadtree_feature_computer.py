@@ -6,7 +6,8 @@ from quadtree.binary_feature_computer import BinaryFeatureComputer
 
 
 class FullQuadtreeFeatureComputer:
-    def __init__(self, max_depth=5, min_size=20, entropy_threshold=3.0):
+    #Change the entropy threshold here:
+    def __init__(self, max_depth=5, min_size=20, entropy_threshold=2.2):
         self.decomposer = QuadTreeDecomposer(
             max_depth=max_depth,
             min_size=min_size,
@@ -27,19 +28,6 @@ class FullQuadtreeFeatureComputer:
         self.features['horizontal_balance'] = BinaryFeatureComputer.compute_horizontal_balance(mask)
         self.features['vertical_balance'] = BinaryFeatureComputer.compute_vertical_balance(mask)
         self.features['equilibrium'] = BinaryFeatureComputer.compute_equilibrium(mask)
-
-    def is_text(self) -> bool:
-        if not self.features:
-            raise ValueError("Must call compute_features() first.")
-
-        return (
-            self.features['average_entropy'] >= 3.0 and
-            self.features['total_nodes'] >= 10 and
-            self.features['leaf_area_fraction'] >= 0.5 and
-            self.features['horizontal_symmetry'] >= 0.5 and
-            self.features['vertical_symmetry'] >= 0.5 and
-            self.features['equilibrium'] >= 0.5
-        )
 
     def get_features(self):
         return self.features

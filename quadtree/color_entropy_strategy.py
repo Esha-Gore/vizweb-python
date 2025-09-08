@@ -7,7 +7,7 @@ class ColorEntropyStrategy:
     # Threshold used to decide if a region has enough color variation to be split
     # **** threshold mirrors the Java default, but may need tuning in Python
     # TTC: I believe the 300 is because the java one scales to 100 but we don't so normal range like 10 or 6 may be better
-    def __init__(self, entropy_threshold: float = 3.0):
+    def __init__(self, entropy_threshold: float = 1.0):
         self.entropy_threshold = entropy_threshold
 
     # Computes color entropy and checks if it's above the threshold
