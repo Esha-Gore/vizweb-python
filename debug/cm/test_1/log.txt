@@ -1,0 +1,28 @@
+Image 593502ca7fecb.jpg:
+Colorfulness (Hasler and Suesstrunk metric): 34.217098236083984
+Colorfulness (LUV metric) clamping: 3.036630153656006
+Colorfulness (LUV metric) not clamping: 17025.755859375
+Average HSV: [20.510164260864258, 27.57263946533203, 223.43321228027344] 
+Color Distribution not included 
+
+Image 593525f44df08.jpg:
+Colorfulness (Hasler and Suesstrunk metric): 55.945613861083984
+Colorfulness (LUV metric) clamping: 16.55670166015625
+Colorfulness (LUV metric) not clamping: 52016.94140625
+Average HSV: [46.462646484375, 36.909122467041016, 174.1354522705078] 
+Color Distribution not included 
+
+Image 5935283ebbe61.jpg:
+Colorfulness (Hasler and Suesstrunk metric): 45.527183532714844
+Colorfulness (LUV metric) clamping: 17.60840606689453
+Colorfulness (LUV metric) not clamping: 112228.6640625
+Average HSV: [98.72940826416016, 144.8238525390625, 75.67758178710938] 
+Color Distribution not included 
+
+Image 593526aca43d8.jpg:
+Colorfulness (Hasler and Suesstrunk metric): 49.96413803100586
+Colorfulness (LUV metric) clamping: 7.249929428100586
+Colorfulness (LUV metric) not clamping: 26791.2890625
+Average HSV: [31.584247589111328, 39.89977264404297, 195.67225646972656] 
+Color Distribution not included 
+

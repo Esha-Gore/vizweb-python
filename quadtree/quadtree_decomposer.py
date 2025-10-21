@@ -24,7 +24,7 @@ class QuadTreeDecomposer:
             max_depth=self.max_depth,
             min_size=self.min_size,
             entropy_func=self.strategy.compute_entropy,
-            entropy_threshold=self.strategy.entropy_threshold
+            entropy_threshold=self.strategy.entropy_threshold,
         )
         qt.build(root)
         return root

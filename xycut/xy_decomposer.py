@@ -36,7 +36,7 @@ class XYDecomposer:
 
         # track the sepsp
         extractors = []
-        if strategy.use_line_separators and bw > 100 and bh > 100:\
+        if strategy.use_line_separators and bw > 100 and bh > 100:
             extractors.append("line")
         if strategy.use_space_separators:
             extractors.append("space")

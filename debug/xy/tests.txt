@@ -1,0 +1,9 @@
+Test 1: Normal Test, no changes to OG code. 
+    - Misses alot 
+    - What to fix in code:
+        - The line seprators are always used when they should only be used in most cases not all cases. 
+        - The line seperators give more weight to the horizontal than the vertical. 
+        - changes in separtor extractor file/ 
+
+Test 2: Tried to fix ^^^^
+    - did nothing :/

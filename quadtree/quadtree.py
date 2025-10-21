@@ -16,16 +16,23 @@ class Quadtree:
         self.entropy_threshold = entropy_threshold
         self.step_num = 0
 
+
     def build(self, root: QuadtreeNode, depth: int = 0):
         x, y, w, h = root.get_bounds()
         region = self.image[y:y+h, x:x+w]
 
         entropy = self.entropy_func(region)
         root.set_entropy(entropy)
-        if (depth >= self.max_depth or
-            w <= self.min_size or h <= self.min_size or
-            entropy < self.entropy_threshold):
+        # if (depth >= self.max_depth or
+        #     w <= self.min_size or h <= self.min_size or
+        #     entropy < self.entropy_threshold):
+        #     return  # stop subdividing
+        
+        # LOOK HERE FOR QUADTREE XHANGEW
+        if(not (w > 500 or entropy > self.entropy_threshold) and (w <= self.min_size or h <= self.min_size or entropy < self.entropy_threshold)):
             return  # stop subdividing
+
+
         
         root.subdivide()
         #self._visualize_split((x, y, w, h))

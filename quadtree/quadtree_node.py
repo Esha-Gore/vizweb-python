@@ -42,6 +42,10 @@ class QuadtreeNode:
             for child in self.children:
                 leaves.extend(child.get_all_leaves())
             return leaves
+        
+    def num_leaves(self) -> int:
+        leaves = self.get_all_leaves()
+        return len(leaves)
 
     def set_entropy(self, value: float):
         self.entropy = value

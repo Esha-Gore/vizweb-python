@@ -6,7 +6,7 @@ from quadtree.quadtree_visualizer import draw_quadtree_blocks, draw_all_blocks
 from quadtree.quadtree_node import QuadtreeNode
 from quadtree.quadtree import Quadtree
 
-# BAD FIX MEMEMEMEMMEMEMMEME
+
 # Load image
 image_path = "images/593525f07e402.jpg"
 image1 = cv2.imread(image_path)
@@ -27,7 +27,7 @@ images.append(white_image)
 images.append(black_image)
 images.append(red_green)
 
-image_folder = "images"
+image_folder = "distinct_images"
 
 # for image in images:
 
@@ -54,8 +54,12 @@ image_folder = "images"
 #     cv2.waitKey(0)
 #     cv2.destroyAllWindows()
 
+test_number = 12
+os.makedirs(f"debug/quadtree", exist_ok=True)
+os.makedirs(f"debug/quadtree/test_{test_number}", exist_ok=True)
+
 for filename in os.listdir(image_folder):
-    filename = "5935268355cac.jpg"
+    #filename = "5935268355cac.jpg"
     image_path = os.path.join(image_folder, filename)
 
     image = cv2.imread(image_path)
@@ -66,21 +70,28 @@ for filename in os.listdir(image_folder):
 
     # #print feature values
     #print(f"Features for: {image_path}")
-    for key, value in features.items():
+    #for key, value in features.items():
         #print(f"  {key}: {value:.4f}")
 
         # Visualize  the quadtree block outlines
         # TTC: what's the minimum size and max depth? 
-        qt = Quadtree(image, max_depth=20, min_size=10,
-                    entropy_func=qt_computer.decomposer.strategy.compute_entropy,
-                    entropy_threshold=qt_computer.decomposer.strategy.entropy_threshold)
-        root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
-        qt.build(root)
+    qt = Quadtree(image, max_depth=20, min_size=20,
+                entropy_func=qt_computer.decomposer.strategy.compute_entropy,
+                entropy_threshold=2)
+    root = QuadtreeNode(0, 0, image.shape[1], image.shape[0])
+    qt.build(root)
 
-        visualized = draw_all_blocks(image, root)
+    with open(f"debug/quadtree/test_{test_number}/log.txt", "a") as f:
+        f.write(f"Image {filename}:\n")
+        f.write(f"{features}")
+        f.write(f"Num Leaves: {root.num_leaves()}\n\n")
 
-        cv2.imshow("Quadtree Visualization", visualized)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    visualized = draw_all_blocks(image, root)
+
+    # cv2.imshow("Quadtree Visualization", visualized)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    cv2.imwrite(f"debug/quadtree/test_{test_number}/{filename}.png", visualized)
+    print(f"done:{filename}")
 
 

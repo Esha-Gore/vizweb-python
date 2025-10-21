@@ -17,10 +17,17 @@ class SeparatorExtractor:
             return []
 
         #  Prefer line separators 
-        if use_line_separators:
+        # if use_line_separators:
+        #     line_seps = self.extract_line_separators(image, block)
+        #     if line_seps:
+        #         return line_seps  # lines win
+
+        roi_large_enough = (bw >= 100 and bh >= 100)
+        if use_line_separators and roi_large_enough:
             line_seps = self.extract_line_separators(image, block)
             if line_seps:
-                return line_seps  # lines win
+                return line_seps
+
 
         roi_bgr = image[by:by+bh, bx:bx+bw]
 
@@ -93,25 +100,35 @@ class SeparatorExtractor:
 
         binary = pick(bin_inv, bin_dir)
 
-        hk = max(7, bw // 50)  # horizontal span
-        vk = max(7, bh // 50)  # vertical span
-        hor_k = cv2.getStructuringElement(cv2.MORPH_RECT, (hk, 1))
-        ver_k = cv2.getStructuringElement(cv2.MORPH_RECT, (1, vk))
+        L = max(bw, bh) # length wise scale 
+        S = min(bw, bh) # thickness wise scale. 
+        base = max(7, L // 50)
+        hor_k = cv2.getStructuringElement(cv2.MORPH_RECT, (base, 1))
+        ver_k = cv2.getStructuringElement(cv2.MORPH_RECT, (1, base))
+
 
         horizontal = cv2.morphologyEx(binary, cv2.MORPH_OPEN, hor_k)
-        vertical   = cv2.morphologyEx(binary, cv2.MORPH_OPEN, ver_k)
+        vertical = cv2.morphologyEx(binary, cv2.MORPH_OPEN, ver_k)
+
+        v_reconnect = cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(3, base // 12)))
+        vertical = cv2.dilate(vertical, v_reconnect, iterations=1)
+
 
         contours_h, _ = cv2.findContours(horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours_v, _ = cv2.findContours(vertical,   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        min_len_h   = max(int(0.25 * bw), 50)
-        max_thick_h = max(1, int(0.02 * bh))
-        min_len_v   = max(int(0.25 * bh), 50)
-        max_thick_v = max(1, int(0.02 * bw))
+        # min_len_h   = max(int(0.25 * bw), 50)
+        # max_thick_h = max(1, int(0.02 * bh))
+        # min_len_v   = max(int(0.25 * bh), 50)
+        # max_thick_v = max(1, int(0.02 * bw))
+
+        min_len_common = max(int(0.25 * L), 100)
+        max_thick_cap  = max(1, int(0.02 * S))
+
 
         for cnt in contours_h:
             x, y, w, h = cv2.boundingRect(cnt)
-            if h <= max_thick_h and w >= min_len_h and not (w >= 0.98 * bw and h >= 0.98 * bh):
+            if h <= max_thick_cap and w >= min_len_common and not (w >= 0.98 * bw and h >= 0.98 * bh):
                 sep = SeparatorModel(y, SeparatorModel.HORIZONTAL_SEPARATOR, block.get_bounds())
                 sep.bounds = (bx + x, by + y, w, h)
                 sep.source = "line"
@@ -119,7 +136,7 @@ class SeparatorExtractor:
 
         for cnt in contours_v:
             x, y, w, h = cv2.boundingRect(cnt)
-            if w <= max_thick_v and h >= min_len_v and not (w >= 0.98 * bw and h >= 0.98 * bh):
+            if w <= max_thick_cap and h >= min_len_common and not (w >= 0.98 * bw and h >= 0.98 * bh):
                 sep = SeparatorModel(x, SeparatorModel.VERTICAL_SEPARATOR, block.get_bounds())
                 sep.bounds = (bx + x, by + y, w, h)
                 sep.source = "line"
