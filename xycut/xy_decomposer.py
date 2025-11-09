@@ -33,8 +33,10 @@ class XYDecomposer:
         # stop if block is too small or max depth is exceeded
         if self._should_stop(block, strategy, level, image):
             return
+        
+        # I don't think I remove the margins 
 
-        # track the sepsp
+        # They may be doing something more complex to pick the extractors here
         extractors = []
         if strategy.use_line_separators and bw > 100 and bh > 100:
             extractors.append("line")
@@ -43,10 +45,11 @@ class XYDecomposer:
 
         selected = None
 
+        # what does this part do? extract all the lines
         for kind in extractors:
             if kind == "line":
                 cands = strategy.line_separator_extractor.extract(block, image)
-                #self.dbg_list(cands, block, level, "line candidates")
+                self.dbg_list(cands, block, level, "line candidates")
 
                 cands = [s for s in cands if s.get_length() > 100]
                 if cands:
@@ -57,12 +60,14 @@ class XYDecomposer:
 
             else:  # "space"
                 cands = strategy.space_separator_extractor.extract(block, image)
-                #self.dbg_list(cands, block, level, "space candidates")
+                self.dbg_list(cands, block, level, "space candidates")
+
                 selected = strategy.choose_separators(cands) if cands else []
                 if selected:
                     for s in selected:
                         s.source = "space"
                     break
+
 
         # no separators 
         if not selected:

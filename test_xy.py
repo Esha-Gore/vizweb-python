@@ -18,7 +18,7 @@ os.makedirs("debug_output", exist_ok=True)
 
 # commit code, and create READ me (env instructions and testing instructions)
 
-test_number = 2
+test_number = 9
 os.makedirs(f"debug/xy", exist_ok=True)
 os.makedirs(f"debug/xy/test_{test_number}", exist_ok=True)
 

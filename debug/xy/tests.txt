@@ -7,3 +7,20 @@ Test 1: Normal Test, no changes to OG code.
 
 Test 2: Tried to fix ^^^^
     - did nothing :/
+
+Test 3: Cleaned up space extractor a bit, gave own method and clarified strategy 
+    - originally I made it use edge detection but the java has two approaches for the spa ce and line
+    and the space should actually use std dev based on the principle that empty space would have lower variation
+    and content areas would have high variation. 
+
+Test 4: More of above 
+
+Test 5: testing use of certain method , mess ed up ????
+
+Test 6: enabled debugger
+
+test 7: fixed neighbor verification. 
+
+test 8: added grid image
+
+test 9: tried something new with space extractor

@@ -1,0 +1,60 @@
+Image HK_593502f01bbf8.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.9444444444444444
+Number of leaf blocks: 18
+
+Image CHILE_593502de2abe9.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 3.914285714285714
+Number of leaf blocks: 35
+
+Image MY_5935277a660e8.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 3.825
+Number of leaf blocks: 40
+
+Image CA_593502db46ae7.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 3.1379310344827585
+Number of leaf blocks: 29
+
+Image JPN_59350300c52c0.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.0
+Number of leaf blocks: 4
+
+Image PO_593503196c854.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.0
+Number of leaf blocks: 2
+
+Image ESP_5935032f7afb0.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.0
+Number of leaf blocks: 4
+
+Image PHIL_5935031699f88.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 2.028481012658228
+Number of leaf blocks: 316
+
+Image SA_5935032c9992d.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 0.0
+Number of leaf blocks: 1
+
+Image ARG_593517b3943af.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.9259259259259258
+Number of leaf blocks: 54
+

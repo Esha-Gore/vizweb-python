@@ -3,7 +3,7 @@ from xycut.separator_model import SeparatorModel
 from xycut.separator_extractor import SeparatorExtractor
 from xycut.space_analyzer import find_content_bounds
 from xycut.line_separator_extractor import LineSeparatorExtractor
-from xycut.space_separator_extractor import SpaceSeparatorExtractor
+#from xycut.space_separator_extractor import SpaceSeparatorExtractor
 from xycut.decomposition_strategy import DecompositionStrategy
 from xycut.selection_strategy import select_the_largest, select_the_largest_and_similar
 import cv2

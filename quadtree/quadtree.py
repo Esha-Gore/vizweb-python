@@ -29,7 +29,7 @@ class Quadtree:
         #     return  # stop subdividing
         
         # LOOK HERE FOR QUADTREE XHANGEW
-        if(not (w > 500 or entropy > self.entropy_threshold) and (w <= self.min_size or h <= self.min_size or entropy < self.entropy_threshold)):
+        if( not (w > 500 or entropy > self.entropy_threshold) and (w <= self.min_size or h <= self.min_size or entropy < self.entropy_threshold)):
             return  # stop subdividing
 
 
