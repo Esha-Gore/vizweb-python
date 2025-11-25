@@ -27,7 +27,7 @@ images.append(white_image)
 images.append(black_image)
 images.append(red_green)
 
-image_folder = "distinct_images"
+image_folder = "hyperparameter"
 
 # for image in images:
 
@@ -54,12 +54,12 @@ image_folder = "distinct_images"
 #     cv2.waitKey(0)
 #     cv2.destroyAllWindows()
 
-test_number = 12
+test_number = 13
 os.makedirs(f"debug/quadtree", exist_ok=True)
 os.makedirs(f"debug/quadtree/test_{test_number}", exist_ok=True)
 
 for filename in os.listdir(image_folder):
-    #filename = "5935268355cac.jpg"
+    filename = "US_5935033a21eec.jpg"
     image_path = os.path.join(image_folder, filename)
 
     image = cv2.imread(image_path)

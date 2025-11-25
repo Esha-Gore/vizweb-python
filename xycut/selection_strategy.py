@@ -4,12 +4,18 @@ from .separator_model import SeparatorModel
 def select_the_largest(separators: List[SeparatorModel]) -> List[SeparatorModel]:
     if not separators:
         return []
+    
+    # separators = [s for s in separators if s.get_thickness() >= 15]
+
     best = max(separators, key=lambda s: s.get_width() * s.get_height())
     return [best]
 
 def select_the_largest_and_similar(separators: List[SeparatorModel]) -> List[SeparatorModel]:
     if not separators:
         return []
+    
+    # separators = [s for s in separators if s.get_thickness() >= 15]
+
 
     #Find largest by area, before it was length 
     best = max(separators, key=lambda s: s.get_width() * s.get_height())

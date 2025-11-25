@@ -15,7 +15,7 @@ class SeparatorExtractor:
         self._line_extractor = LineSeparatorExtractor(debug=debug)
         self._space_extractor = SpaceSeparatorExtractor(debug=debug, base_std_threshold=10)
     
-    def extract(self, block: Block, image: np.ndarray, use_line_separators: bool = True) -> List[SeparatorModel]:
+    def extract(self, block: Block, image: np.ndarray, use_line_separators: bool = True, h_min_thickness: int = 15, v_min_thickness: int = 15,r_threshold: int = 20, c_threshold: int = 20) -> List[SeparatorModel]:
         if image is None or image.size == 0:
             return []
 
@@ -31,13 +31,13 @@ class SeparatorExtractor:
                 return line_seps
 
         # Fall back to space separators
-        return self._space_extractor.extract(block, image)
+        return self._space_extractor.extract(block, image, h_min_thickness, v_min_thickness,r_threshold, c_threshold)
     
     def extract_line_separators(self, block: Block, image: np.ndarray) -> List[SeparatorModel]:
         return self._line_extractor.extract(block, image)
     
-    def extract_space_separators(self, block: Block, image: np.ndarray) -> List[SeparatorModel]:
-        return self._space_extractor.extract(block, image)
+    # def extract_space_separators(self, block: Block, image: np.ndarray) -> List[SeparatorModel]:
+    #     return self._space_extractor.extract(block, image, h_min_thickness, v_min_thickness,r_threshold, c_threshold)
     
 
 

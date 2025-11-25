@@ -3,6 +3,7 @@ from xycut.default_strategy import DefaultXYDecompositionStrategy
 from xycut.separator_extractor import SeparatorExtractor
 from xycut.separator_model import SeparatorModel
 from xycut.block import Block
+from xycut.space_analyzer import find_content_bounds
 import uuid
 import cv2
 import os
@@ -11,8 +12,12 @@ import numpy as np
 from typing import List
 
 class XYDecomposer:
-    def __init__(self):
+    def __init__(self, h_min_thickness: int = 15, v_min_thickness: int = 15, r_threshold: int = 20, c_threshold: int = 20):
         self.separators_used: List[Tuple[int, int, int, int]] = []
+        self.h_min_thickness = h_min_thickness
+        self.v_min_thickness = v_min_thickness
+        self.r_threshold = r_threshold
+        self.c_threshold = c_threshold
 
     # Entry point: Decomposes the full image into a block tree.
     def decompose(self, image, strategy: DefaultXYDecompositionStrategy) -> Block:
@@ -34,7 +39,25 @@ class XYDecomposer:
         if self._should_stop(block, strategy, level, image):
             return
         
-        # I don't think I remove the margins 
+        # I don't think I remove the margins ----> doing now
+
+        if strategy.remove_border:
+            content_bounds = find_content_bounds(image, (bx, by, bw, bh))
+            cx, cy, cw, ch = content_bounds
+            
+            # If content bounds are smaller than block bounds (there's margin/whitespace)
+            if cw < bw or ch < bh:
+                # Create inner block with trimmed bounds
+                inner_block = Block()
+                inner_block.set_bounds(content_bounds)
+                
+                # Recurse on the trimmer block
+                self._recursive_decompose(image, inner_block, strategy, level)
+                
+                # Add the inner block as child
+                block.add_child(inner_block)
+                
+                return
 
         # They may be doing something more complex to pick the extractors here
         extractors = []
@@ -49,7 +72,10 @@ class XYDecomposer:
         for kind in extractors:
             if kind == "line":
                 cands = strategy.line_separator_extractor.extract(block, image)
-                self.dbg_list(cands, block, level, "line candidates")
+                #self.dbg_list(cands, block, level, "line candidates")
+
+                #cands = self._filter_bad_separators(cands, block, strategy)
+                
 
                 cands = [s for s in cands if s.get_length() > 100]
                 if cands:
@@ -59,9 +85,12 @@ class XYDecomposer:
                     break 
 
             else:  # "space"
-                cands = strategy.space_separator_extractor.extract(block, image)
-                self.dbg_list(cands, block, level, "space candidates")
+                # some problem here. 
+                cands = strategy.space_separator_extractor.extract(block, image, strategy.use_line_separators ,self.h_min_thickness, self.v_min_thickness,self.r_threshold, self.c_threshold )
+                #self.dbg_list(cands, block, level, "space candidates")
 
+                #cands = self._filter_bad_separators(cands, block, strategy)
+                
                 selected = strategy.choose_separators(cands) if cands else []
                 if selected:
                     for s in selected:
@@ -161,6 +190,13 @@ class XYDecomposer:
         x, y, w, h = block.bounds
         area = w * h
 
+        roi = image[y:y+h, x:x+w]
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY) if len(roi.shape) == 3 else roi
+        white_ratio = np.sum(gray > 240) / gray.size
+        
+        if white_ratio > 0.95:  # More than 95% white
+            return True
+
         stop = (
             area < strategy.min_area or
             w < strategy.min_width or
@@ -182,5 +218,50 @@ class XYDecomposer:
             tr = thick  / (bh if s.is_horizontal() else bw)
             print(f" #{i:02d} src={getattr(s,'source',None)} dir={'H' if s.is_horizontal() else 'V'} "
                 f"b={x,y,w,h} len={length}({lr:.2f}) thick={thick}({tr:.3f})", flush=True)
+            
+    def _filter_bad_separators(self, separators: List[SeparatorModel], block: Block, strategy:DefaultXYDecompositionStrategy) -> List[SeparatorModel]:
+        bx, by, bw, bh = block.get_bounds()
+        MIN_WIDTH = 40 #strategy.min_width
+        MIN_HEIGHT = 20  #strategy.min_height
+        # MIN_THICKNESS =  15#strategy.min_thickness
+        
+        print(f"  Filtering {len(separators)} seps for block ({bx},{by},{bw},{bh})")
+        
+            
+        filtered = []
+        for sep in separators:
+            sx, sy, sw, sh = sep.get_bounds()
+            
+            # # Reject very thin separators (likely borders/noise)
+            # thickness = sh if sep.is_horizontal() else sw
+            # if thickness < MIN_THICKNESS:
+            #     continue
+            
+            if sep.is_horizontal():
+                top_h = sy - by
+                bottom_h = (by + bh) - (sy + sh)
+                
+                if top_h > 0 and top_h < MIN_HEIGHT:
+                    print(f"    Rejected H-sep: top={top_h} < {MIN_HEIGHT}")
+                    continue
+                if bottom_h > 0 and bottom_h < MIN_HEIGHT:
+                    print(f"    Rejected H-sep: bottom={bottom_h} < {MIN_HEIGHT}")
+                    continue
+            
+            else:  # vertical
+                left_w = sx - bx
+                right_w = (bx + bw) - (sx + sw)
+                
+                if left_w > 0 and left_w < MIN_WIDTH:
+                    print(f"    Rejected V-sep at x={sx}: left={left_w} < {MIN_WIDTH}")
+                    continue
+                if right_w > 0 and right_w < MIN_WIDTH:
+                    print(f"    Rejected V-sep at x={sx}: right={right_w} < {MIN_WIDTH}")
+                    continue
+            
+            filtered.append(sep)
+        
+        print(f"  → Kept {len(filtered)}/{len(separators)}")
+        return filtered
 
 

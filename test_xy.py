@@ -6,19 +6,11 @@ from xycut.xy_feature_computer import XYFeatureComputer
 from xycut.xycut_visualizer import XYTreeVisualizer
 
 #from pdb import set_trace as st
-image_folder = "distinct_images"
+image_folder = "hyperparameter"
 os.makedirs("debug", exist_ok=True)
 os.makedirs("debug_output", exist_ok=True)
 
-
-# todo: hyperparameter search first 
-# then conside the defautl strategy pixels (like by 100 or so)
-# choose something which makes sense (things are wider then they are long, etc)
-# evalute them. 
-
-# commit code, and create READ me (env instructions and testing instructions)
-
-test_number = 9
+test_number = 41
 os.makedirs(f"debug/xy", exist_ok=True)
 os.makedirs(f"debug/xy/test_{test_number}", exist_ok=True)
 
@@ -44,8 +36,8 @@ for filename in os.listdir(image_folder):
 
     with open(f"debug/xy/test_{test_number}/log.txt", "a") as f:
         f.write(f"Image {filename}:\n")
-        f.write(f"strategy has min_area?,{hasattr(strategy, "min_area")}\n")
-        f.write(f"strategy.min_area = {getattr(strategy, "min_area", "N/A")}\n")
+        f.write(f"strategy has min_area?,{hasattr(strategy, 'min_area') }\n") 
+        f.write(f"strategy.min_area = {getattr(strategy, 'min_area', 'N/A')}\n")
         f.write(f"Average decomposition depth: {avg_depth}\n")
         f.write(f"Number of leaf blocks: {num_leaves}\n\n")
 

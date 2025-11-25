@@ -12,7 +12,7 @@ def find_content_bounds(image, bounds):
         sub_image = np.mean(sub_image, axis=2)
 
     # Define threshold: pixels below this are considered content
-    threshold = 250
+    threshold = 200
     content_mask = sub_image < threshold # todo: double check scalar vs array comparison
 
     # Check for any non-background pixels in each row and column
@@ -33,5 +33,9 @@ def find_content_bounds(image, bounds):
     new_y = y + top
     new_w = right - left + 1
     new_h = bottom - top + 1
+
+    # if new_w < w * 0.9 or new_h < h * 0.9:  # Only print if actually trimming
+    #     print(f"  find_content_bounds: ({x},{y},{w},{h}) → ({new_x},{new_y},{new_w},{new_h})")
+
 
     return (new_x, new_y, new_w, new_h)

@@ -14,14 +14,15 @@ class DefaultXYDecompositionStrategy(DecompositionStrategy):
         self,
         # change from select the largest & most similar to just teh largest
         separator_selection_strategy: Callable[[List[SeparatorModel]], List[SeparatorModel]] = select_the_largest_and_similar,
-        min_separator_size: int = 10,
+        min_separator_size: int = 20,
         min_std_dev: int = 10,
         # fine tune 
         min_area: int = 100,
-        min_width: int = 40,
+        min_width: int = 60,
         min_height: int = 20,
+        min_thickness: int = 15,
         max_level: int = 15,
-    remove_border: bool = True,
+        remove_border: bool = True,
         split_horizontal: bool = True,
         split_vertical: bool = True,
         use_line_separators: bool = True,
@@ -36,6 +37,7 @@ class DefaultXYDecompositionStrategy(DecompositionStrategy):
         self.min_area = min_area
         self.min_width = min_width
         self.min_height = min_height
+        self.min_thickness = min_thickness
         self.max_level = max_level
         self.remove_border = remove_border
         self.split_horizontal = split_horizontal

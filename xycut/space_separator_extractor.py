@@ -6,11 +6,11 @@ from xycut.block import Block
 
 class SpaceSeparatorExtractor:
     
-    def __init__(self, debug: bool = True, base_std_threshold: int = 10):
+    def __init__(self, debug: bool = False, base_std_threshold: int = 10):
         self.debug = debug
         self.base_std_threshold = base_std_threshold
 
-    def extract(self, block: Block, image: np.ndarray) -> List[SeparatorModel]:
+    def extract(self, block: Block, image: np.ndarray, h_min_thickness = 15, v_min_thickness = 15, r_threshold = 20, c_threshold = 20) -> List[SeparatorModel]:
         bx, by, bw, bh = block.get_bounds()
         if bw <= 0 or bh <= 0:
             return []
@@ -25,6 +25,7 @@ class SpaceSeparatorExtractor:
         # Calculate standard deviation for each row and column
         row_std = np.std(gray, axis=1)  # stddev across each row
         col_std = np.std(gray, axis=0)  # stddev across each column
+
         
         # PRE-CHECK: Skip if no low-variation areas exist
         if col_std.min() > 25 and row_std.min() > 25:
@@ -33,8 +34,13 @@ class SpaceSeparatorExtractor:
             return []
         
         # Use adaptive threshold based on the data, THRESHOLD like what we discussed
-        col_threshold = min(max(self.base_std_threshold, np.percentile(col_std, 20)), 30)
-        row_threshold = min(max(self.base_std_threshold, np.percentile(row_std, 20)), 30)
+        col_threshold = min(max(self.base_std_threshold, np.percentile(col_std, 20)), c_threshold)
+        row_threshold = min(max(self.base_std_threshold, np.percentile(row_std, 20)), r_threshold)
+
+        #print(h_min_thickness)
+
+        #print(f"  SpaceSep block ({bx},{by},{bw},{bh}): row_std range [{row_std.min():.1f}, {row_std.max():.1f}]")
+        #print(f"  SpaceSep: Found {np.sum(row_std < row_threshold)} rows with std < {row_threshold:.1f}")
         
         if self.debug:
             print(f"  SpaceSep: Thresholds - col={col_threshold:.1f}, row={row_threshold:.1f}")
@@ -51,8 +57,8 @@ class SpaceSeparatorExtractor:
         vertical_segments = self._segment_boolean_mask(vertical_mask)
         
         # Minimum thickness: 2% of dimension or 3 pixels (prevents 1-pixel noise)
-        min_h_thickness = max(3, int(0.02 * bh))
-        min_v_thickness = max(3, int(0.02 * bw))
+        min_h_thickness = max(h_min_thickness, int(0.02 * bh))
+        min_v_thickness = max(v_min_thickness, int(0.02 * bw))
         
         separators = []
         
@@ -62,14 +68,6 @@ class SpaceSeparatorExtractor:
             
             # Filter by minimum thickness
             if sh < min_h_thickness:
-                continue
-            sy_rel = seg['start']
-            band = gray[sy_rel:sy_rel+sh, :]
-            white_ratio = np.sum(band > 200) / band.size
-            
-            if white_ratio < 0.85:
-                if self.debug:
-                    print(f"✗ Rejected H-sep: {white_ratio:.1%} white")
                 continue
                 
             sy = by + seg['start']
@@ -88,15 +86,6 @@ class SpaceSeparatorExtractor:
             
             # Filter by minimum thickness
             if sw < min_v_thickness:
-                continue
-
-            sx_rel = seg['start']
-            band = gray[:, sx_rel:sx_rel+sw]
-            white_ratio = np.sum(band > 200) / band.size
-            
-            if white_ratio < 0.85:
-                if self.debug:
-                    print(f"✗ Rejected V-sep: {white_ratio:.1%} white")
                 continue
                 
             sx = bx + seg['start']

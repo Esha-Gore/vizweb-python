@@ -1,0 +1,84 @@
+Image second japan image.png:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 8.862745098039216
+Number of leaf blocks: 51
+
+Image GRID-OVERLAY-01.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.0
+Number of leaf blocks: 196
+
+Image japan image color copy.png:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 2.6666666666666665
+Number of leaf blocks: 3
+
+Image HK_593502f01bbf8.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 5.6938775510204085
+Number of leaf blocks: 49
+
+Image CHILE_593502de2abe9.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 7.930232558139535
+Number of leaf blocks: 43
+
+Image MY_5935277a660e8.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 4.391304347826087
+Number of leaf blocks: 23
+
+Image CA_593502db46ae7.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 4.3
+Number of leaf blocks: 10
+
+Image JPN_59350300c52c0.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 1.6666666666666667
+Number of leaf blocks: 3
+
+Image PO_593503196c854.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 0.0
+Number of leaf blocks: 1
+
+Image ESP_5935032f7afb0.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 0.0
+Number of leaf blocks: 1
+
+Image PHIL_5935031699f88.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 2.25
+Number of leaf blocks: 16
+
+Image SA_5935032c9992d.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 10.981818181818182
+Number of leaf blocks: 55
+
+Image image.png:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 5.0
+Number of leaf blocks: 13
+
+Image ARG_593517b3943af.jpg:
+strategy has min_area?,True
+strategy.min_area = 100
+Average decomposition depth: 3.0
+Number of leaf blocks: 8
+
