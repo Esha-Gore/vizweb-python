@@ -20,3 +20,13 @@ debug_output/
 quadtree_hyperparameter_tuning/
 xy_cut_hyperparameter_tuning/
 mini_img_xy_output
+
+# Environment 
+renv/
+.venv/
+venv/
+.tenv/
+tenv
+
+# Visualization output
+output/
