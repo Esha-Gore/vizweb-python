@@ -21,6 +21,7 @@ class XYDecomposer:
 
     # Entry point: Decomposes the full image into a block tree.
     def decompose(self, image, strategy: DefaultXYDecompositionStrategy) -> Block:
+        strategy.use_space_separators = False
         self.separators_used.clear()
         root = Block()
         height, width = image.shape[:2]
@@ -60,6 +61,7 @@ class XYDecomposer:
                 return
 
         # They may be doing something more complex to pick the extractors here
+        #print(strategy.use_space_separators)
         extractors = []
         if strategy.use_line_separators and bw > 100 and bh > 100:
             extractors.append("line")
@@ -75,7 +77,13 @@ class XYDecomposer:
                 #self.dbg_list(cands, block, level, "line candidates")
 
                 #cands = self._filter_bad_separators(cands, block, strategy)
+
+                print(f"[DEBUG] Line extractor returned {len(cands)} separators for block ({bx},{by},{bw},{bh}):")
+                for c in cands:
+                    cx, cy, cw, ch = c.get_bounds()
+                    print(f"  - at ({cx},{cy}) size ({cw},{ch})")
                 
+                            
 
                 cands = [s for s in cands if s.get_length() > 100]
                 if cands:
@@ -86,8 +94,8 @@ class XYDecomposer:
 
             else:  # "space"
                 # some problem here. 
-                cands = strategy.space_separator_extractor.extract(block, image, strategy.use_line_separators ,self.h_min_thickness, self.v_min_thickness,self.r_threshold, self.c_threshold )
-                #self.dbg_list(cands, block, level, "space candidates")
+                cands = strategy.space_separator_extractor.extract(block, image)
+                self.dbg_list(cands, block, level, "space candidates")
 
                 #cands = self._filter_bad_separators(cands, block, strategy)
                 
@@ -128,6 +136,16 @@ class XYDecomposer:
                     next_regions.extend(parts)
 
             regions = next_regions
+
+        if selected:
+            print(f"\n{'='*70}")
+            print(f"USING {len(selected)} SEPARATORS for block ({bx},{by},{bw},{bh})")
+            for i, sep in enumerate(selected):
+                sx, sy, sw, sh = sep.get_bounds()
+                source = getattr(sep, 'source', 'unknown')
+                direction = 'H' if sep.is_horizontal() else 'V'
+                print(f"  Sep {i+1}: {direction} source={source} at ({sx},{sy}) size ({sw},{sh})")
+            print(f"{'='*70}\n")
 
         # add children and recurse once
         for child in regions:
@@ -197,6 +215,8 @@ class XYDecomposer:
         if white_ratio > 0.95:  # More than 95% white
             return True
 
+        # print(strategy.min_area)
+
         stop = (
             area < strategy.min_area or
             w < strategy.min_width or
@@ -263,5 +283,4 @@ class XYDecomposer:
         
         print(f"  → Kept {len(filtered)}/{len(separators)}")
         return filtered
-
 

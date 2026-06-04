@@ -1,2 +1,22 @@
-renv
-debug
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+*.code-workspace
+
+# Debug/output folders generated during development
+debug/
+debug_output/
+quadtree_hyperparameter_tuning/
+xy_cut_hyperparameter_tuning/
+mini_img_xy_output

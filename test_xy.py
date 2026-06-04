@@ -5,47 +5,28 @@ from xycut.default_strategy import DefaultXYDecompositionStrategy
 from xycut.xy_feature_computer import XYFeatureComputer
 from xycut.xycut_visualizer import XYTreeVisualizer
 
-#from pdb import set_trace as st
-image_folder = "hyperparameter"
-os.makedirs("debug", exist_ok=True)
-os.makedirs("debug_output", exist_ok=True)
-
-test_number = 41
-os.makedirs(f"debug/xy", exist_ok=True)
-os.makedirs(f"debug/xy/test_{test_number}", exist_ok=True)
+image_folder = "distinct_images"
+output_folder = "output/xy"
+os.makedirs(output_folder, exist_ok=True)
 
 for filename in os.listdir(image_folder):
     image_path = os.path.join(image_folder, filename)
-
     image = cv2.imread(image_path)
 
     strategy = DefaultXYDecompositionStrategy()
-
     decomposer = XYDecomposer()
     root = decomposer.decompose(image, strategy)
-    # print("strategy has min_area?", hasattr(strategy, "min_area"))
-    # print("strategy.min_area =", getattr(strategy, "min_area", "N/A"))
-
 
     # Feature extraction
     avg_depth = XYFeatureComputer.compute_average_decomposition_level(root)
     num_leaves = XYFeatureComputer.compute_num_leaves(root)
 
-    # print(f"Average decomposition depth: {avg_depth}")
-    # print(f"Number of leaf blocks: {num_leaves}")
-
-    with open(f"debug/xy/test_{test_number}/log.txt", "a") as f:
-        f.write(f"Image {filename}:\n")
-        f.write(f"strategy has min_area?,{hasattr(strategy, 'min_area') }\n") 
-        f.write(f"strategy.min_area = {getattr(strategy, 'min_area', 'N/A')}\n")
-        f.write(f"Average decomposition depth: {avg_depth}\n")
-        f.write(f"Number of leaf blocks: {num_leaves}\n\n")
+    print(f"\nImage: {filename}")
+    print(f"  Average decomposition depth: {avg_depth}")
+    print(f"  Number of leaf blocks: {num_leaves}")
 
     # Visualization
     visualizer = XYTreeVisualizer()
     outlined = visualizer.draw_block_outlines(image, root)
-    cv2.imwrite(f"debug/xy/test_{test_number}/{filename}.png", outlined)
-    print(f"done:{filename}")
-    # cv2.imshow("Spacetree Visualization", outlined)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imwrite(os.path.join(output_folder, f"{filename}.png"), outlined)
+    print(f"  Saved visualization to {output_folder}/{filename}.png")

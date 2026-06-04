@@ -5,7 +5,7 @@ from xycut.separator_model import SeparatorModel
 from xycut.block import Block
 
 class LineSeparatorExtractor:  
-    def __init__(self, debug: bool = False):
+    def __init__(self, debug: bool = True):
         self.debug = debug
         self.line_pixel_ratio_threshold = 0.85
         self.ratio_decrement = 0.1
@@ -15,9 +15,18 @@ class LineSeparatorExtractor:
         self.neighbor_threshold_ratio = 0.2
 
     def extract(self, block: Block, image: np.ndarray) -> List[SeparatorModel]:
+
+        #print("in line sep")
+        self.debug = True
+
         separators: List[SeparatorModel] = []
 
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        bx, by, bw, bh = block.get_bounds()
+        roi_image = image[by:by+bh, bx:bx+bw]
+
+        print(f"[LINE EXTRACT] Block: ({bx},{by},{bw},{bh}), ROI shape: {roi_image.shape}, Full image shape: {image.shape}")
+
+        gray = cv2.cvtColor(roi_image, cv2.COLOR_BGR2GRAY)
 
         # cvCanny(gray, mask, 0.66*50, 1.33*50, 3) -> (33, 67, aperture=3).
         edges = cv2.Canny(gray, 33, 67, apertureSize=3)
@@ -62,7 +71,10 @@ class LineSeparatorExtractor:
 
         return separators
 
-    def _find_verified_separators( self, values: np.ndarray, threshold: float, is_horizontal: bool, block: Block, width: int, height: int) -> List[SeparatorModel]:
+    def _find_verified_separators(self, values: np.ndarray, threshold: float, is_horizontal: bool, block: Block, width: int, height: int) -> List[SeparatorModel]:
+        # Get block bounds
+        bx, by, bw, bh = block.get_bounds()
+        
         # Find positions where edge count exceeds threshold
         mask = np.array(values) > threshold
         segments = self._segment_boolean_mask(mask)
@@ -102,21 +114,24 @@ class LineSeparatorExtractor:
                     print(f"      before={before_response:.1f}, current={current_response:.1f}, after={after_response:.1f}")
                     print(f"      before_ratio={before_response/current_response:.2f}, after_ratio={after_response/current_response:.2f}")
                 continue
-            
+
+            if self.debug:
+                print(f"    ✓ PASSED neighbor check at pos={pos}: before={before_response:.1f}, current={current_response:.1f}, after={after_response:.1f}")
+                        
             if is_horizontal:
                 separator = SeparatorModel(
                     position=pos,
                     direction=SeparatorModel.HORIZONTAL_SEPARATOR,
                     roi=block.get_bounds()
                 )
-                separator.bounds = (block.get_x(), block.get_y() + pos, width, size)
+                separator.bounds = (bx, by + pos, bw, size)  # Fixed: use bw instead of width
             else:
                 separator = SeparatorModel(
                     position=pos,
                     direction=SeparatorModel.VERTICAL_SEPARATOR,
                     roi=block.get_bounds()
                 )
-                separator.bounds = (block.get_x() + pos, block.get_y(), size, height)
+                separator.bounds = (bx + pos, by, size, bh)  # Fixed: use bh instead of height
 
             verified.append(separator)
             

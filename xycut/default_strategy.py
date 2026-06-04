@@ -17,11 +17,11 @@ class DefaultXYDecompositionStrategy(DecompositionStrategy):
         min_separator_size: int = 20,
         min_std_dev: int = 10,
         # fine tune 
-        min_area: int = 100,
-        min_width: int = 60,
-        min_height: int = 20,
+        min_area: int = 2000,
+        min_width: int = 100,
+        min_height: int = 50,
         min_thickness: int = 15,
-        max_level: int = 15,
+        max_level: int = 10,
         remove_border: bool = True,
         split_horizontal: bool = True,
         split_vertical: bool = True,
@@ -79,6 +79,4 @@ class DefaultXYDecompositionStrategy(DecompositionStrategy):
         cv2.imshow(f"Separators at level {level}", vis_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-
 

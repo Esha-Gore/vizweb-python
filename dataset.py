@@ -1,17 +1,35 @@
+import os
+import torch
+import pandas as pd
+from torch.utils.data import Dataset
+from torchvision import transforms
+from PIL import Image
+
 from colorfulness_metrics import (
     compute_colorfulness,
     compute_colorfulness2,
     compute_average_hsv,
     compute_color_distribution,
+    STANDARD_COLORS,
 )
-from dataclasses import dataclass
-from PIL import Image
 
 class CustomImageDataset(Dataset):
+    """
+    PyTorch Dataset for computing vizweb features over a labeled image dataset.
+
+    Args:
+        annotations_file: path to a CSV with columns [filename, label]
+        img_dir: folder containing the images
+        transform: torchvision transform to apply to each image
+
+    NOTE: currently only computes colorfulness features.
+    TODO: add quadtree and XY-cut features to the feature vector.
+    """
+
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
         self.img_labels = pd.read_csv(annotations_file)
         self.img_dir = img_dir
-        self.transform = transform
+        self.transform = transform or transforms.ToTensor()
         self.target_transform = target_transform
 
     def __len__(self):
@@ -33,7 +51,7 @@ class CustomImageDataset(Dataset):
             cf1,
             cf2,
             *avg_hsv.tolist(),
-            *[color_dist[c] for c in [nc.name for nc in STANDARD_COLORS]]
+            *[color_dist[c.name] for c in STANDARD_COLORS],
         ]
 
         label = self.img_labels.iloc[idx, 1]

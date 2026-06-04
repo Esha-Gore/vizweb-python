@@ -1,2 +1,0 @@
-Test 1: Old image set 
-Test 2: New image set

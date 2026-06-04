@@ -6,11 +6,11 @@ from xycut.block import Block
 
 class SpaceSeparatorExtractor:
     
-    def __init__(self, debug: bool = False, base_std_threshold: int = 10):
+    def __init__(self, debug: bool = True, base_std_threshold: int = 10):
         self.debug = debug
-        self.base_std_threshold = base_std_threshold
+        self.base_std_threshold = max(base_std_threshold, 25)
 
-    def extract(self, block: Block, image: np.ndarray, h_min_thickness = 15, v_min_thickness = 15, r_threshold = 20, c_threshold = 20) -> List[SeparatorModel]:
+    def extract(self, block: Block, image: np.ndarray, h_min_thickness = 15, v_min_thickness = 15, r_threshold = 35, c_threshold = 30) -> List[SeparatorModel]:
         bx, by, bw, bh = block.get_bounds()
         if bw <= 0 or bh <= 0:
             return []
@@ -20,7 +20,7 @@ class SpaceSeparatorExtractor:
         gray = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2GRAY)
         
         # Light blur to reduce noise, maybe will help idk trying anything. 
-        gray = cv2.GaussianBlur(gray, (3, 3), 0)
+        # gray = cv2.GaussianBlur(gray, (3, 3), 0)
         
         # Calculate standard deviation for each row and column
         row_std = np.std(gray, axis=1)  # stddev across each row
@@ -36,6 +36,12 @@ class SpaceSeparatorExtractor:
         # Use adaptive threshold based on the data, THRESHOLD like what we discussed
         col_threshold = min(max(self.base_std_threshold, np.percentile(col_std, 20)), c_threshold)
         row_threshold = min(max(self.base_std_threshold, np.percentile(row_std, 20)), r_threshold)
+
+        row_threshold = max(row_threshold, 25)
+        col_threshold = max(col_threshold, 25)
+
+        horizontal_mask = row_std < row_threshold
+        vertical_mask = col_std < col_threshold
 
         #print(h_min_thickness)
 
@@ -69,6 +75,34 @@ class SpaceSeparatorExtractor:
             # Filter by minimum thickness
             if sh < min_h_thickness:
                 continue
+            
+            # sy_local = seg['start']
+    
+            # # Check 10 pixels before the separator
+            # if sy_local >= 10:
+            #     before_region = gray[sy_local-10:sy_local, :]
+            #     before_std = np.std(before_region)
+            # else:
+            #     before_std = 0
+            
+            # # Check 10 pixels after the separator
+            # if sy_local + sh + 10 <= gray.shape[0]:
+            #     after_region = gray[sy_local+sh:sy_local+sh+10, :]
+            #     after_std = np.std(after_region)
+            # else:
+            #     after_std = 0
+            
+            # # Only accept if BOTH sides have high variation (text exists on both sides)
+            # if before_std < 30 or after_std < 30:
+            #     if self.debug:
+            #         print(f"  Rejected H-sep at {sy_local}: before_std={before_std:.1f}, after_std={after_std:.1f}")
+            #     continue
+
+            aspect_ratio = bw / sh  # width / height
+            if aspect_ratio < 10:  # Separator must be at least 10x wider than tall
+                if self.debug:
+                    print(f"  Rejected H-sep: aspect_ratio={aspect_ratio:.1f} < 10")
+                continue
                 
             sy = by + seg['start']
             separator = SeparatorModel(
@@ -86,6 +120,12 @@ class SpaceSeparatorExtractor:
             
             # Filter by minimum thickness
             if sw < min_v_thickness:
+                continue
+
+            aspect_ratio = bh / sw  # height / width
+            if aspect_ratio < 10:  # Separator must be at least 10x taller than wide
+                if self.debug:
+                    print(f"  Rejected V-sep: aspect_ratio={aspect_ratio:.1f} < 10")
                 continue
                 
             sx = bx + seg['start']
